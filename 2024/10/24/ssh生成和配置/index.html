@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title> | Hexo</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"><link rel="stylesheet" type="text/css" href="/css/highlight.css"><link rel="stylesheet" type="text/css" href="/css/very-simple.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><meta name="generator" content="Hexo 7.3.0"></head><body><!-- include the sidebar--><!-- include ./includes/sidebar.jade--><!-- Blog title and subtitle--><header><div class="container header"><a id="logo" href="/." class="title">Hexo</a><span class="subtitle"></span><label id="toggle-menu" for="menu" onclick><i class="fa fa-bars"></i></label></div></header><!-- use checkbox hack for toggle nav-bar on small screens--><input id="menu" type="checkbox"><!-- Navigation Links--><nav id="nav"><div class="container"><a href="/" class="sidebar-nav-item active">Home</a><a href="/archives" class="sidebar-nav-item">Archives</a></div></nav><div id="header-margin-bar"></div><!-- gallery that comes before the header--><div class="wrapper"><div class="container post-header"><h1></h1></div></div><div class="wrapper"><div class="container meta"><div class="post-time">2024-10-24</div><div class="post-tags"><a class="post-tag-none-link" href="/tags/ssh/" rel="tag">ssh</a>/<a class="post-tag-none-link" href="/tags/%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag">远程服务器</a></div></div></div><article><div class="container post"><h1 id="生成ssh密钥"><a href="#生成ssh密钥" class="headerlink" title="生成ssh密钥"></a>生成ssh密钥</h1><p>&#x3D;&#x3D;如果在Windows平台，可以在Git Bash中实现一下操作&#x3D;&#x3D;<br>因为Git Bash可以使用类Unix命令</p>
+<ol>
+<li>在命令行界面输入一下代码来生成ssh密钥</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -f ~/.ssh/your_custom_key_name</span><br></pre></td></tr></table></figure>
+
+<p>​	<code>-t rsa</code>：指定密钥类型为 RSA。</p>
+<p><code>-f ~/.ssh/your_custom_key_name</code>：<code>-f</code> 选项用于指定生成密钥的文件路径和名称。例如，上述命令将在 <code>~/.ssh/</code> 目录下生成名为 <code>your_custom_key_name</code> 的私钥和 <code>your_custom_key_name.pub</code> 的公钥。</p>
+<ol start="2">
+<li>是否设置密码短语</li>
+</ol>
+<p>运行上述命令后，系统会提示你是否为私钥设置密码短语（passphrase）。如果你不希望每次使用密钥时都需要输入密码短语，可以直接按 <code>Enter</code> 键跳过。</p>
+<h1 id="配置免密登录"><a href="#配置免密登录" class="headerlink" title="配置免密登录"></a>配置免密登录</h1><p><strong>将指定的公钥复制到远程服务器</strong><br>如果使用了自定义的密钥名称，需要在将公钥传输到远程服务器时，使用指定的密钥文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id -i ~/.ssh/my_custom_key.pub user@remote_server_ip</span><br></pre></td></tr></table></figure>
+
+<p>或者手动将公钥内容添加到远程服务器的 <code>~/.ssh/authorized_keys</code> 文件中，方法与之前步骤类似。</p>
+<p><strong>测试免密登录</strong><br>由于你使用了自定义的密钥文件，在测试 SSH 免密登录时，指定私钥文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -i ~/.ssh/my_custom_key user@remote_server_ip</span><br></pre></td></tr></table></figure>
+
+<p><code>-i</code> 选项用于指定你要使用的私钥文件。</p>
+<h1 id="config文件配置"><a href="#config文件配置" class="headerlink" title="config文件配置"></a>config文件配置</h1><p>&#x3D;&#x3D;配置好config文件后，可以使用自定义的名称来实现登录，例如<code>ssh aliyun</code>，即可登录设置别名为aliyun的电脑。&#x3D;&#x3D;</p>
+<p>编辑或创建 <code>~/.ssh/config</code> 文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nano ~/.ssh/config</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里需要注意config文件不能有任何后缀。nano是Linux和MacOS中的一个简单文本编辑器。</p>
+</blockquote>
+<p>在文件中添加以下内容，指定默认使用的密钥：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Host myserver</span><br><span class="line">	HostName romote_address</span><br><span class="line">    User user</span><br><span class="line">    IdentityFile ~/.ssh/my_custom_key</span><br><span class="line">    Port 22</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>myserver：你想要用于关联的别名<br>HostName：用于指定远程服务器的ip地址或域名，例如47.1.9.130.174<br>User：指定登录的用户名，例如root等<br>IdentityFile：指定本地的私钥文件路径，用于ssh认证。这里建议使用绝对路径<br>Port：当端口为默认值22时，可以不指定端口。如果修改了端口需要在配置文件中指出端口号</p>
+</blockquote>
+<p>保存并退出。现在，你可以直接使用以下命令登录，而无需每次都指定密钥：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh myserser</span><br></pre></td></tr></table></figure>
+
+<p>其等价于<code>ssh -i ~/.ssh/my_custom_key user@remote_address</code></p>
+</div><!-- comment system--><div class="container"><hr></div></article><footer id="footer"><div class="container"><div class="bar"><div class="social"><a href="/atom.xml" target="_blank"><i class="fa fa-rss"></i></a></div><div class="footer">© 2024 <a href="/" rel="nofollow">John Doe</a>. Powered by <a rel="nofollow" target="_blank" href="https://hexo.io">Hexo</a>. Theme <a target="_blank" href="https://github.com/lotabout/very-simple">very-simple</a>.</div></div></div></footer><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>
